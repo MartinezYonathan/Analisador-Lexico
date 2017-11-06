@@ -6,6 +6,7 @@
  * Tabla no mostrar todos los tokens solo los identificadores
  * Faltan caracteres especiales
  *Editar
+*Prueba
  */
 package analisadorlexico3;
 
