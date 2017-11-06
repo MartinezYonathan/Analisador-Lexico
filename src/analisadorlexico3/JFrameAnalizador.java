@@ -5,6 +5,7 @@
  * Error en que si ponen una palabra mala dentro de comentarios te muestra todo lo que esta dentro
  * Tabla no mostrar todos los tokens solo los identificadores
  * Faltan caracteres especiales
+ *Editar
  */
 package analisadorlexico3;
 
