@@ -32,6 +32,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
     String cabecera1[] = {"No.", " Token ", " Tipo"};
     String palabra = "", reservado = "", ruta = "";
     String[] valor = new String[500];
+    int[] id = new int[100];
     int[] pos = new int[500];
     int i, j, k, m = 0, size = 0, linea = 0, orden = 1, estado = 0, opcion;
 
@@ -294,6 +295,20 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                         } else {
                             estado = 8;
                         }
+                    } else if (in == 40) {
+                        if (estado == 0) {
+                            estado = 9;
+                            palabra += (char) in;
+                        } else {
+                            estado = 8;
+                        }
+                    } else if (in == 41) {
+                        if (estado == 0) {
+                            estado = 10;
+                            palabra += (char) in;
+                        } else {
+                            estado = 8;
+                        }
                     } else if (in > 47 && in < 58) {
                         if (estado == 0 || estado == 2) {
                             size++;
@@ -382,7 +397,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                                 if (size > 8) {
                                     estado = 8;
                                 } else {
-                                    valor[k] = ""+3;
+                                    valor[k] = "" + 3;
                                     FileReader file2 = new FileReader("reservados.txt");
                                     BufferedReader buff2 = new BufferedReader(file2);
                                     int in2;
@@ -393,7 +408,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                                                 reservado += (char) in2;
                                             } else {
                                                 if (reservado.equals(palabra)) {
-                                                    valor[k] = ""+2;
+                                                    valor[k] = "" + 2;
                                                 }
                                                 reservado = "";
                                             }
@@ -464,6 +479,26 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                                 size = 0;
                                 estado = 0;
                                 m = 0;
+                                break;
+                            case 9:
+                                pos[k] = orden;
+                                id[k] = 7;
+                                token[k] = palabra;
+                                palabra = "";
+                                size = 0;
+                                estado = 0;
+                                orden++;
+                                k++;
+                                break;
+                            case 10:
+                                pos[k] = orden;
+                                id[k] = 8;
+                                token[k] = palabra;
+                                palabra = "";
+                                size = 0;
+                                estado = 0;
+                                orden++;
+                                k++;
                                 break;
                         }
                     }
