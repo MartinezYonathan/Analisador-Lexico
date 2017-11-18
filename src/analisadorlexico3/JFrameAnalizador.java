@@ -29,13 +29,14 @@ public class JFrameAnalizador extends javax.swing.JFrame {
 
     File abreArchi;
     String[] token = new String[100];
-    String[] reservados = {"ENTONCES", "ESCRIVIR", "FIN", "HACER", "INICIO", "LEE", "MIENTRAS", "SI", "SINO"};
+    String[] auxToken = new String[20];
+    String[] reservadas = {"", "ENTONCES", "ESCRIBIR", "FIN", "HACER", "INICIO", "LEER", "MIENTRAS", "SI", "SINO"};
     String cabecera1[] = {"No.", " Token ", " Tipo"};
     String palabra = "", reservado = "", ruta = "";
     String[] valor = new String[500];
     int[] id = new int[100];
     int[] pos = new int[500];
-    int i, j, k, m = 0, size = 0, linea = 0, orden = 1, estado = 0, opcion;
+    int i, j, k, n, m = 0, size = 0, linea = 0, orden = 1, estado = 0, opcion;
 
     /**
      * Creates new form JFrameAnalizador
@@ -398,11 +399,11 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                                 if (size > 8) {
                                     estado = 8;
                                 } else {
-                                    valor[k] = "" + 3;                                  
+                                    valor[k] = "" + 3;
                                     pos[k] = orden;
                                     token[k] = palabra;
-                                    for (i = 0; i < reservados.length; i++) {
-                                        if (palabra.equals(reservados[i])) {
+                                    for (i = 0; i < reservadas.length; i++) {
+                                        if (palabra.equals(reservadas[i])) {
                                             valor[k] = "" + 2;
                                             break;
                                         }
@@ -502,7 +503,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAnLéxicoActionPerformed
 
     private void btnMosTablaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMosTablaActionPerformed
-
+        n = 0;
         DefaultTableModel model = new DefaultTableModel();
         model.setColumnIdentifiers(new Object[]{"Token", "Cantidad", "Tipo"});
 
@@ -510,30 +511,25 @@ public class JFrameAnalizador extends javax.swing.JFrame {
         try {
             FileWriter file = new FileWriter("simbolos.txt", false);
             BufferedWriter buff = new BufferedWriter(file);
-            FileReader file2 = new FileReader("reservados.txt");
-            BufferedReader buff2 = new BufferedReader(file2);
-            int in2;
-            i = 1;
-            do {
-                in2 = buff2.read();
-                if (in2 != -1) {
-                    buff.write((char) in2);
-                    if (in2 >= 65 && in2 <= 90) {
-                        reservado += (char) in2;
-                    }
-                }
-                if (in2 == 10) {
-                    model.addRow(new Object[]{i, reservado, 2});
-                    buff.write(i + "\t\t" + reservado + "\t\t" + valor[j] + "\n");
-                    i++;
-                    reservado = "";
-                }
+            for (i = 1; i < reservadas.length; i++) {
+                model.addRow(new Object[]{i, reservadas[i], 2});
+                buff.write(i + "\t\t" + reservadas[i] + "\t\t" + 2 + "\n");
+            }
 
-            } while (in2 != -1);
-            buff2.close();
             for (j = 0; j < k; j++) {
-                buff.write(i + j + "\t\t" + token[j] + "\t" + valor[j] + "\n");
-                model.addRow(new Object[]{i + j, token[j], valor[j]});
+                if (valor[j].equals("" + 3)) {
+                    String tokenAux = token[j];
+                    for (int g = 0; g < auxToken.length; g++) {
+                        if(!tokenAux.equals(auxToken[g]) && !auxToken[g].equals("null") ){
+                        auxToken[g] = tokenAux;
+                            n++;
+                            buff.write(i - 1 + n + "\t\t" + token[j] + "\t" + valor[j] + "\n");
+                            model.addRow(new Object[]{i - 1 + n, auxToken[j], valor[j]});
+                        break;
+                        }
+                    }
+                    
+                }
             }
             buff.close();
         } catch (IOException e) {
