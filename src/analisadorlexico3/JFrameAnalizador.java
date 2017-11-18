@@ -16,6 +16,8 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -28,6 +30,8 @@ import javax.swing.table.DefaultTableModel;
 public class JFrameAnalizador extends javax.swing.JFrame {
 
     File abreArchi;
+    ArrayList<Tabla_Simbolos> _tabla_simbolos;
+    Tabla_Simbolos _Simbolos;
     String[] token = new String[100];
     String[] auxToken = new String[20];
     String[] reservadas = {"", "ENTONCES", "ESCRIBIR", "FIN", "HACER", "INICIO", "LEER", "MIENTRAS", "SI", "SINO"};
@@ -43,6 +47,11 @@ public class JFrameAnalizador extends javax.swing.JFrame {
      */
     public JFrameAnalizador() {
         initComponents();
+        _tabla_simbolos = new ArrayList<>();
+        for (int q = 0; q < reservadas.length; q++) {
+            _Simbolos = new Tabla_Simbolos(q, reservadas[q], 2);
+            _tabla_simbolos.add(_Simbolos);
+        }
     }
 
     /**
@@ -399,6 +408,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                                 if (size > 8) {
                                     estado = 8;
                                 } else {
+
                                     valor[k] = "" + 3;
                                     pos[k] = orden;
                                     token[k] = palabra;
@@ -406,6 +416,24 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                                         if (palabra.equals(reservadas[i])) {
                                             valor[k] = "" + 2;
                                             break;
+                                        }
+                                    }
+
+                                    if (valor[k].equals("3")) {
+                                        boolean bandera = true;
+                                        Iterator<Tabla_Simbolos> simboloSigui = _tabla_simbolos.iterator();
+                                        while (simboloSigui.hasNext()) {
+                                            Tabla_Simbolos simbolo = simboloSigui.next();
+                                            if (palabra.equals(simbolo.getNombre())) {
+                                                bandera = false;
+                                                break;
+                                            } else {
+                                                bandera = true;
+                                            }
+                                        }
+                                        if (bandera) {
+                                            _Simbolos = new Tabla_Simbolos(_tabla_simbolos.size(), palabra, 3);
+                                            _tabla_simbolos.add(_Simbolos);
                                         }
                                     }
                                     palabra = "";
@@ -505,36 +533,46 @@ public class JFrameAnalizador extends javax.swing.JFrame {
     private void btnMosTablaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMosTablaActionPerformed
         n = 0;
         DefaultTableModel model = new DefaultTableModel();
-        model.setColumnIdentifiers(new Object[]{"Token", "Cantidad", "Tipo"});
+        model.setColumnIdentifiers(new Object[]{"Posicion", "Nombre", "Clase"});
 
-        System.out.println("Pos\t\tNombre\t\tClase");
+//        System.out.println("Pos\t\tNombre\t\tClase");
         try {
             FileWriter file = new FileWriter("simbolos.txt", false);
             BufferedWriter buff = new BufferedWriter(file);
-            for (i = 1; i < reservadas.length; i++) {
-                model.addRow(new Object[]{i, reservadas[i], 2});
-                buff.write(i + "\t\t" + reservadas[i] + "\t\t" + 2 + "\n");
-            }
-
-            for (j = 0; j < k; j++) {
-                if (valor[j].equals("" + 3)) {
-                    String tokenAux = token[j];
-                    for (int g = 0; g < auxToken.length; g++) {
-                        if(!tokenAux.equals(auxToken[g]) && !auxToken[g].equals("null") ){
-                        auxToken[g] = tokenAux;
-                            n++;
-                            buff.write(i - 1 + n + "\t\t" + token[j] + "\t" + valor[j] + "\n");
-                            model.addRow(new Object[]{i - 1 + n, auxToken[j], valor[j]});
-                        break;
-                        }
-                    }
-                    
+//            for (i = 1; i < reservadas.length; i++) {
+//                model.addRow(new Object[]{i, reservadas[i], 2});
+//                buff.write(i + "\t\t" + reservadas[i] + "\t\t" + 2 + "\n");
+//            }
+//
+//            for (j = 0; j < k; j++) {
+//                if (valor[j].equals("" + 3)) {
+//                    String tokenAux = token[j];
+//                    for (int g = 0; g < auxToken.length; g++) {
+//                        if (!tokenAux.equals(auxToken[g]) && !auxToken[g].equals("null")) {
+//                            auxToken[g] = tokenAux;
+//                            n++;
+//                            buff.write(i - 1 + n + "\t\t" + token[j] + "\t" + valor[j] + "\n");
+//                            model.addRow(new Object[]{i - 1 + n, auxToken[j], valor[j]});
+//                            break;
+//                        }
+//                    }
+//
+//                }
+//            }
+            Iterator<Tabla_Simbolos> simboloSigui = _tabla_simbolos.iterator();
+            while (simboloSigui.hasNext()) {
+                Tabla_Simbolos simbolo = simboloSigui.next();
+                if (!simbolo.getNombre().equals("")) {
+                    model.addRow(new Object[]{simbolo.getPosicion(), simbolo.getNombre(), simbolo.getClase()});
+                    buff.write(simbolo.getPosicion() + "\t\t" + simbolo.getNombre() + "\t\t" + simbolo.getClase() + "\n");
                 }
             }
+
             buff.close();
         } catch (IOException e) {
             System.out.println("Error " + e.toString());
         }
+
         try {
             FileReader file = new FileReader("simbolos.txt");
             BufferedReader buff = new BufferedReader(file);
@@ -549,6 +587,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
         } catch (IOException e) {
             System.out.println("Error " + e.toString());
         }
+
         tabla.setModel(model);
     }//GEN-LAST:event_btnMosTablaActionPerformed
 

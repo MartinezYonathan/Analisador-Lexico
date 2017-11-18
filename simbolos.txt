@@ -1,0 +1,13 @@
+1		ENTONCES		2
+2		ESCRIBIR		2
+3		FIN		2
+4		HACER		2
+5		INICIO		2
+6		LEER		2
+7		MIENTRAS		2
+8		SI		2
+9		SINO		2
+10		A		3
+11		B		3
+12		C		3
+13		D		3
