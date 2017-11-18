@@ -10,21 +10,21 @@ package analisadorlexico3;
  * @author MABY
  */
 public class Token {
-    private String clase;
+    private int clase;
     private String valor;
     private String nombre;
 
-    public Token(String clase, String valor, String nombre) {
+    public Token(int clase, String valor, String nombre) {
         this.clase = clase;
         this.valor = valor;
         this.nombre = nombre;
     }
 
-    public String getClase() {
+    public int getClase() {
         return clase;
     }
 
-    public void setClase(String clase) {
+    public void setClase(int clase) {
         this.clase = clase;
     }
 
@@ -43,7 +43,7 @@ public class Token {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-    
-    
+
     
 }
+

@@ -2,16 +2,20 @@
 INICIO
 	A := 5
 	B := 10
-		LEER C
+
+	LEER C
 	D := 8
-	SI ( A + 2 ) + B = 9 ENTONCES		HACER
-			A := D
-			B := A
+	SI ( A + 2 ) + B = 9
+
+	ENTONCES
+	HACER
+	A := D
+	B := A
 		FIN
 	FIN
-	SI C + 2 > B ENTONCES
+	SI C + 2 >= B ENTONCES
 	FIN
-	MIENTRAS A + 4 > C HACER
+	MIENTRAS A + 4 <= C HACER
 		LEER C
 
 	FIN 

@@ -31,6 +31,8 @@ public class JFrameAnalizador extends javax.swing.JFrame {
 
     File abreArchi;
     ArrayList<Tabla_Simbolos> _tabla_simbolos;
+    ArrayList<Token> _tabla_tokens;
+    Token _token;
     Tabla_Simbolos _Simbolos;
     String[] token = new String[100];
     String[] auxToken = new String[20];
@@ -48,6 +50,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
     public JFrameAnalizador() {
         initComponents();
         _tabla_simbolos = new ArrayList<>();
+        _tabla_tokens = new ArrayList<>();
         for (int q = 0; q < reservadas.length; q++) {
             _Simbolos = new Tabla_Simbolos(q, reservadas[q], 2);
             _tabla_simbolos.add(_Simbolos);
@@ -227,13 +230,13 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(btnMosTabla))
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 301, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 411, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(52, 52, 52)
                         .addComponent(btnMosTokens)))
-                .addContainerGap(40, Short.MAX_VALUE))
+                .addContainerGap(33, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -306,16 +309,9 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                         } else {
                             estado = 8;
                         }
-                    } else if (in == 40) {
+                    } else if (in == 40 || in == 41 || in == 44 || in == 59) {
                         if (estado == 0) {
                             estado = 9;
-                            palabra += (char) in;
-                        } else {
-                            estado = 8;
-                        }
-                    } else if (in == 41) {
-                        if (estado == 0) {
-                            estado = 10;
                             palabra += (char) in;
                         } else {
                             estado = 8;
@@ -364,7 +360,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                             estado = 8;
                         }
                     } else if (in == 61) {
-                        if (estado == 0) {
+                        if (estado == 0 || estado == 4) {
                             estado = 4;
                             palabra += (char) in;
                         } else if (estado == 5) {
@@ -405,87 +401,19 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                                 estado = 0;
                                 break;
                             case 1:
-                                if (size > 8) {
-                                    estado = 8;
-                                } else {
-
-                                    valor[k] = "" + 3;
-                                    pos[k] = orden;
-                                    token[k] = palabra;
-                                    for (i = 0; i < reservadas.length; i++) {
-                                        if (palabra.equals(reservadas[i])) {
-                                            valor[k] = "" + 2;
-                                            break;
-                                        }
-                                    }
-
-                                    if (valor[k].equals("3")) {
-                                        boolean bandera = true;
-                                        Iterator<Tabla_Simbolos> simboloSigui = _tabla_simbolos.iterator();
-                                        while (simboloSigui.hasNext()) {
-                                            Tabla_Simbolos simbolo = simboloSigui.next();
-                                            if (palabra.equals(simbolo.getNombre())) {
-                                                bandera = false;
-                                                break;
-                                            } else {
-                                                bandera = true;
-                                            }
-                                        }
-                                        if (bandera) {
-                                            _Simbolos = new Tabla_Simbolos(_tabla_simbolos.size(), palabra, 3);
-                                            _tabla_simbolos.add(_Simbolos);
-                                        }
-                                    }
-                                    palabra = "";
-                                    size = 0;
-                                    estado = 0;
-                                    orden++;
-                                    k++;
-                                }
+                                agregarIDoReservadas();
                                 break;
                             case 2:
-                                if (size > 7) {
-                                    estado = 8;
-                                } else {
-                                    pos[k] = orden;
-                                    valor[k] = "" + 1;
-                                    token[k] = palabra;
-                                    palabra = "";
-                                    size = 0;
-                                    estado = 0;
-                                    orden++;
-                                    k++;
-                                }
+                                agregarNumero();
                                 break;
                             case 3:
-                                pos[k] = orden;
-                                valor[k] = "'" + palabra + "'";
-                                token[k] = palabra;
-                                palabra = "";
-                                size = 0;
-                                estado = 0;
-                                orden++;
-                                k++;
+                                agregarOperadoresAricmeticos();
                                 break;
-                            case 4:
-                                pos[k] = orden;
-                                valor[k] = "'" + palabra + "'";
-                                token[k] = palabra;
-                                palabra = "";
-                                size = 0;
-                                estado = 0;
-                                orden++;
-                                k++;
+                            case 4://OperadoresRelacionales
+                                agregarOperadoresrelacionales();
                                 break;
-                            case 6:
-                                pos[k] = orden;
-                                valor[k] = "'" + palabra + "'";
-                                token[k] = palabra;
-                                palabra = "";
-                                size = 0;
-                                estado = 0;
-                                orden++;
-                                k++;
+                            case 6://Operador de asignacion
+                                agregarOperadorAsignacion();
                                 break;
                             case 7:
                                 //ESte estado entra cuando son comentarios
@@ -499,26 +427,19 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                                 estado = 0;
                                 m = 0;
                                 break;
-                            case 9:
-                                pos[k] = orden;
-                                id[k] = 7;
-                                token[k] = palabra;
-                                palabra = "";
-                                size = 0;
-                                estado = 0;
-                                orden++;
-                                k++;
+                            case 9://CaracterEspecial
+                                agregarCaracterEspecial();
                                 break;
-                            case 10:
-                                pos[k] = orden;
-                                id[k] = 8;
-                                token[k] = palabra;
-                                palabra = "";
-                                size = 0;
-                                estado = 0;
-                                orden++;
-                                k++;
-                                break;
+//                            case 10:
+//                                pos[k] = orden;
+//                                id[k] = 8;
+//                                token[k] = palabra;
+//                                palabra = "";
+//                                size = 0;
+//                                estado = 0;
+//                                orden++;
+//                                k++;
+//                                break;
                         }
                     }
                 }
@@ -529,6 +450,131 @@ public class JFrameAnalizador extends javax.swing.JFrame {
             System.out.println("Excpetion: " + e.getMessage());
         }
     }//GEN-LAST:event_btnAnLéxicoActionPerformed
+
+    private void agregarIDoReservadas() {
+        if (size > 8) {
+            estado = 8;
+        } else {
+
+            valor[k] = "" + 3;
+            pos[k] = orden;
+            token[k] = palabra;
+            for (i = 0; i < reservadas.length; i++) {
+                if (palabra.equals(reservadas[i])) {
+                    valor[k] = "" + 2;
+                    break;
+                }
+            }
+
+            if (valor[k].equals("3")) {
+                boolean bandera = true;
+                Iterator<Tabla_Simbolos> simboloSigui = _tabla_simbolos.iterator();
+                while (simboloSigui.hasNext()) {
+                    Tabla_Simbolos simbolo = simboloSigui.next();
+                    if (palabra.equals(simbolo.getNombre())) {
+                        bandera = false;
+                        break;
+                    } else {
+                        bandera = true;
+                    }
+                }
+                if (bandera) {
+                    _Simbolos = new Tabla_Simbolos(_tabla_simbolos.size(), palabra, 3);
+                    _tabla_simbolos.add(_Simbolos);
+                }
+            }
+
+            Iterator<Tabla_Simbolos> simboloSigui = _tabla_simbolos.iterator();
+            while (simboloSigui.hasNext()) {
+                Tabla_Simbolos simbolo = simboloSigui.next();
+                if (palabra.equals(simbolo.getNombre())) {
+                    int val = simbolo.getPosicion();
+                    _token = new Token(Integer.parseInt(valor[k]), "" + val, palabra);
+                    _tabla_tokens.add(_token);
+                    break;
+                } else {
+
+                }
+            }
+
+            palabra = "";
+            size = 0;
+            estado = 0;
+            orden++;
+            k++;
+        }
+    }
+
+    private void agregarNumero() {
+        if (size > 7) {
+            estado = 8;
+        } else {
+
+            valor[k] = "" + 1;
+            token[k] = palabra;
+
+            _token = new Token(Integer.parseInt(valor[k]), palabra, "Numerico");
+            _tabla_tokens.add(_token);
+
+            palabra = "";
+            size = 0;
+            estado = 0;
+            orden++;
+            k++;
+        }
+    }
+
+    private void agregarOperadoresAricmeticos() {
+
+        valor[k] = "'" + palabra + "'";
+        token[k] = palabra;
+        _token = new Token(5, "" + palabra, "OperadorAritmetico");
+        _tabla_tokens.add(_token);
+        palabra = "";
+        size = 0;
+        estado = 0;
+        orden++;
+        k++;
+    }
+
+    private void agregarOperadoresrelacionales() {
+
+        valor[k] = "'" + palabra + "'";
+        token[k] = palabra;
+        _token = new Token(6, "" + palabra, "OperadorRelacional");
+        _tabla_tokens.add(_token);
+        palabra = "";
+        size = 0;
+        estado = 0;
+        orden++;
+        k++;
+    }
+
+    private void agregarOperadorAsignacion() {
+
+        valor[k] = "'" + palabra + "'";
+        token[k] = palabra;
+        _token = new Token(7, palabra, "OperadorAsignacion");
+        _tabla_tokens.add(_token);
+        palabra = "";
+        size = 0;
+        estado = 0;
+        orden++;
+        k++;
+    }
+
+    private void agregarCaracterEspecial() {
+
+        id[k] = 7;
+        token[k] = palabra;
+        _token = new Token(4, palabra, "CaracterEspecial");
+        _tabla_tokens.add(_token);
+        palabra = "";
+        size = 0;
+        estado = 0;
+        orden++;
+        k++;
+    }
 
     private void btnMosTablaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMosTablaActionPerformed
         n = 0;
@@ -593,12 +639,18 @@ public class JFrameAnalizador extends javax.swing.JFrame {
 
     private void btnMosTokensActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMosTokensActionPerformed
         DefaultTableModel model = new DefaultTableModel();
-        model.setColumnIdentifiers(new Object[]{"Posicion", "token", "valor"});
+        model.setColumnIdentifiers(new Object[]{"Clase", "Valor", "Nombre"});
 
-        for (i = 0; i <= k; i++) {
-            model.addRow(new Object[]{pos[i], token[i], valor[i]});
-            System.out.println(pos[i] + "\t\t" + token[i] + "\t\t" + valor[i]);
+//        for (i = 0; i <= k; i++) {
+//            model.addRow(new Object[]{pos[i], token[i], valor[i]});
+//            System.out.println(pos[i] + "\t\t" + token[i] + "\t\t" + valor[i]);
+//        }
+        Iterator<Token> tokenSigui = _tabla_tokens.iterator();
+        while (tokenSigui.hasNext()) {
+            Token token = tokenSigui.next();
+            model.addRow(new Object[]{token.getClase(), token.getValor(), token.getNombre()});
         }
+
         tabla.setModel(model);
     }//GEN-LAST:event_btnMosTokensActionPerformed
 
