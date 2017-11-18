@@ -1,6 +1,6 @@
 {Porgrama1}
-iNICIO
-	Aghtudt := 5	B := 10
+A INICIO
+	A := 5	B := 10
 	ESCRIBIR A
 	ESCRIBIR B
 	LEER C 

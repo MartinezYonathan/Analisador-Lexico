@@ -1,45 +1,47 @@
 ENTONCES
-1		ENTONCES		null
+1		ENTONCES		3
 ESCRIBIR
-2		ESCRIBIR		null
+2		ESCRIBIR		3
 FIN
-3		FIN		null
+3		FIN		3
 HACER
-4		HACER		null
+4		HACER		3
 INICIO
-5		INICIO		null
+5		INICIO		3
 LEE
-6		LEE		null
+6		LEE		3
 MIENTRAS
-7		MIENTRAS		null
+7		MIENTRAS		3
 SI
-8		SI		null
+8		SI		3
 SINO
-9		SINO		null
-10		iNICIO	3
-11		:=	':='
-12		5	1
-13		B	3
-14		:=	':='
-15		10	1
-16		ESCRIBIR	2
-17		A	3
-18		ESCRIBIR	2
-19		B	3
-20		LEER	3
-21		C	3
-22		SI	2
+9		SINO		3
+10		A	3
+11		INICIO	2
+12		A	3
+13		:=	':='
+14		5	1
+15		B	3
+16		:=	':='
+17		10	1
+18		ESCRIBIR	3
+19		A	3
+20		ESCRIBIR	3
+21		B	3
+22		LEER	3
 23		C	3
-24		<	'<'
-25		A	3
-26		+	'+'
-27		B	3
-28		ENTONCES	2
-29		ESCRIBIR	2
-30		A	3
-31		+	'+'
-32		B	3
-33		SINO	2
-34		ESCRIBIR	2
-35		C	3
-36		FIN	2
+24		SI	2
+25		C	3
+26		<	'<'
+27		A	3
+28		+	'+'
+29		B	3
+30		ENTONCES	2
+31		ESCRIBIR	3
+32		A	3
+33		+	'+'
+34		B	3
+35		SINO	2
+36		ESCRIBIR	3
+37		C	3
+38		FIN	2

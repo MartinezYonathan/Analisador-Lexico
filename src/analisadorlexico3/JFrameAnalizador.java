@@ -29,6 +29,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
 
     File abreArchi;
     String[] token = new String[100];
+    String[] reservados = {"ENTONCES", "ESCRIVIR", "FIN", "HACER", "INICIO", "LEE", "MIENTRAS", "SI", "SINO"};
     String cabecera1[] = {"No.", " Token ", " Tipo"};
     String palabra = "", reservado = "", ruta = "";
     String[] valor = new String[500];
@@ -397,26 +398,15 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                                 if (size > 8) {
                                     estado = 8;
                                 } else {
-                                    valor[k] = "" + 3;
-                                    FileReader file2 = new FileReader("reservados.txt");
-                                    BufferedReader buff2 = new BufferedReader(file2);
-                                    int in2;
-                                    do {
-                                        in2 = buff2.read();
-                                        if (in2 != -1) {
-                                            if (in2 >= 65 && in2 <= 90) {
-                                                reservado += (char) in2;
-                                            } else {
-                                                if (reservado.equals(palabra)) {
-                                                    valor[k] = "" + 2;
-                                                }
-                                                reservado = "";
-                                            }
-                                        }
-                                    } while (in2 != -1);
-                                    buff2.close();
+                                    valor[k] = "" + 3;                                  
                                     pos[k] = orden;
                                     token[k] = palabra;
+                                    for (i = 0; i < reservados.length; i++) {
+                                        if (palabra.equals(reservados[i])) {
+                                            valor[k] = "" + 2;
+                                            break;
+                                        }
+                                    }
                                     palabra = "";
                                     size = 0;
                                     estado = 0;
