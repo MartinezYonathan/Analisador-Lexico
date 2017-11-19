@@ -13,15 +13,19 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import static java.lang.System.in;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.table.DefaultTableModel;
+import sun.misc.IOUtils;
 
 /**
  *
@@ -38,7 +42,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
     String[] auxToken = new String[20];
     String[] reservadas = {"", "ENTONCES", "ESCRIBIR", "FIN", "HACER", "INICIO", "LEER", "MIENTRAS", "SI", "SINO"};
     String cabecera1[] = {"No.", " Token ", " Tipo"};
-    String palabra = "", reservado = "", ruta = "";
+    String palabra = "", reservado = "", ruta = "", error = "";
     String[] valor = new String[500];
     int[] id = new int[100];
     int[] pos = new int[500];
@@ -51,10 +55,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
         initComponents();
         _tabla_simbolos = new ArrayList<>();
         _tabla_tokens = new ArrayList<>();
-        for (int q = 0; q < reservadas.length; q++) {
-            _Simbolos = new Tabla_Simbolos(q, reservadas[q], 2);
-            _tabla_simbolos.add(_Simbolos);
-        }
+
     }
 
     /**
@@ -74,6 +75,8 @@ public class JFrameAnalizador extends javax.swing.JFrame {
         btnMosTokens = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         tabla = new javax.swing.JTable();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        txtError = new javax.swing.JEditorPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -214,29 +217,29 @@ public class JFrameAnalizador extends javax.swing.JFrame {
         ));
         jScrollPane3.setViewportView(tabla);
 
+        jScrollPane4.setViewportView(txtError);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(26, 26, 26)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(btnAgregarTexto)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnAnLéxico)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnMosTabla))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(btnAgregarTexto)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnAnLéxico)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnMosTabla)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnMosTokens))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(52, 52, 52)
-                        .addComponent(btnMosTokens)))
-                .addContainerGap(33, Short.MAX_VALUE))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -245,14 +248,15 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAgregarTexto)
                     .addComponent(btnAnLéxico)
-                    .addComponent(btnMosTabla))
-                .addGap(4, 4, 4)
-                .addComponent(btnMosTokens)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(btnMosTabla)
+                    .addComponent(btnMosTokens))
+                .addGap(33, 33, 33)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE)
                     .addComponent(jScrollPane1))
-                .addContainerGap(44, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
@@ -261,6 +265,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
     private void btnAgregarTextoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarTextoActionPerformed
         String aux = "";
         String texto = "";
+
         try {
             //Llamamos al metodo que permite cargar la ventana del chooser
             JFileChooser file = new JFileChooser();
@@ -286,12 +291,28 @@ public class JFrameAnalizador extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAgregarTextoActionPerformed
 
     private void btnAnLéxicoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnLéxicoActionPerformed
+
+        _tabla_simbolos.clear();
+        _tabla_tokens.clear();
+
+        for (int q = 0; q < reservadas.length; q++) {
+            _Simbolos = new Tabla_Simbolos(q, reservadas[q], 2);
+            _tabla_simbolos.add(_Simbolos);
+        }
+
         k = 0;
         linea = 0;
         size = 0;
         orden = 1;
         estado = 0;
+        error = "";
+
         try {
+
+            FileWriter file2 = new FileWriter(ruta, false);
+            file2.write(EPane.getText());
+            file2.close();
+
             File file3 = new File(ruta);
             FileInputStream file = new FileInputStream(file3);
 
@@ -307,6 +328,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                             palabra += (char) in;
                         } else if (estado == 7) {
                         } else {
+                            palabra += (char) in;
                             estado = 8;
                         }
                     } else if (in == 40 || in == 41 || in == 44 || in == 59) {
@@ -314,6 +336,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                             estado = 9;
                             palabra += (char) in;
                         } else {
+                            palabra += (char) in;
                             estado = 8;
                         }
                     } else if (in > 47 && in < 58) {
@@ -327,6 +350,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                             palabra += (char) in;
                         } else if (estado == 7) {
                         } else {
+                            palabra += (char) in;
                             estado = 8;
                         }
                     } else if (in == 95) {
@@ -336,11 +360,13 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                                 estado = 1;
                                 palabra += (char) in;
                             } else {
+                                palabra += (char) in;
                                 estado = 8;
                                 m++;
                             }
 
                         } else {
+                            palabra += (char) in;
                             estado = 8;
                         }
                     } else if (in == 42 || in == 43 || in == 45 || in == 47) {
@@ -349,6 +375,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                             palabra += (char) in;
                         } else if (estado == 7) {
                         } else {
+                            palabra += (char) in;
                             estado = 8;
                         }
                     } else if (in == 60 || in == 62 || in == 38) {
@@ -357,6 +384,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                             palabra += (char) in;
                         } else if (estado == 7) {
                         } else {
+                            palabra += (char) in;
                             estado = 8;
                         }
                     } else if (in == 61) {
@@ -368,6 +396,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                             palabra += (char) in;
                         } else if (estado == 7) {
                         } else {
+                            palabra += (char) in;
                             estado = 8;
                         }
                     } else if (in == 58) {
@@ -376,6 +405,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                             palabra += (char) in;
                         } else if (estado == 7) {
                         } else {
+                            palabra += (char) in;
                             estado = 8;
                         }
                     } else if (in == 123) {
@@ -394,6 +424,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                             if (estado == 7 && in == 125) {
                                 estado = 0;
                             }
+
                         }
 
                         switch (estado) {
@@ -409,10 +440,10 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                             case 3:
                                 agregarOperadoresAricmeticos();
                                 break;
-                            case 4://OperadoresRelacionales
+                            case 4:
                                 agregarOperadoresrelacionales();
                                 break;
-                            case 6://Operador de asignacion
+                            case 6:
                                 agregarOperadorAsignacion();
                                 break;
                             case 7:
@@ -421,7 +452,8 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                                 m = 0;
                                 break;
                             case 8:
-                                System.out.println("Error en la línea " + linea + " con la palabra " + palabra);
+                                error += "Error en la línea " + linea + " con la palabra " + palabra + ", " + "\n";
+                                txtError.setText(error);
                                 palabra = "";
                                 size = 0;
                                 estado = 0;
@@ -430,16 +462,6 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                             case 9://CaracterEspecial
                                 agregarCaracterEspecial();
                                 break;
-//                            case 10:
-//                                pos[k] = orden;
-//                                id[k] = 8;
-//                                token[k] = palabra;
-//                                palabra = "";
-//                                size = 0;
-//                                estado = 0;
-//                                orden++;
-//                                k++;
-//                                break;
                         }
                     }
                 }
@@ -577,34 +599,14 @@ public class JFrameAnalizador extends javax.swing.JFrame {
     }
 
     private void btnMosTablaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMosTablaActionPerformed
-        n = 0;
+
         DefaultTableModel model = new DefaultTableModel();
         model.setColumnIdentifiers(new Object[]{"Posicion", "Nombre", "Clase"});
 
-//        System.out.println("Pos\t\tNombre\t\tClase");
         try {
             FileWriter file = new FileWriter("simbolos.txt", false);
             BufferedWriter buff = new BufferedWriter(file);
-//            for (i = 1; i < reservadas.length; i++) {
-//                model.addRow(new Object[]{i, reservadas[i], 2});
-//                buff.write(i + "\t\t" + reservadas[i] + "\t\t" + 2 + "\n");
-//            }
-//
-//            for (j = 0; j < k; j++) {
-//                if (valor[j].equals("" + 3)) {
-//                    String tokenAux = token[j];
-//                    for (int g = 0; g < auxToken.length; g++) {
-//                        if (!tokenAux.equals(auxToken[g]) && !auxToken[g].equals("null")) {
-//                            auxToken[g] = tokenAux;
-//                            n++;
-//                            buff.write(i - 1 + n + "\t\t" + token[j] + "\t" + valor[j] + "\n");
-//                            model.addRow(new Object[]{i - 1 + n, auxToken[j], valor[j]});
-//                            break;
-//                        }
-//                    }
-//
-//                }
-//            }
+
             Iterator<Tabla_Simbolos> simboloSigui = _tabla_simbolos.iterator();
             while (simboloSigui.hasNext()) {
                 Tabla_Simbolos simbolo = simboloSigui.next();
@@ -618,22 +620,6 @@ public class JFrameAnalizador extends javax.swing.JFrame {
         } catch (IOException e) {
             System.out.println("Error " + e.toString());
         }
-
-        try {
-            FileReader file = new FileReader("simbolos.txt");
-            BufferedReader buff = new BufferedReader(file);
-            int in2;
-            do {
-                in2 = buff.read();
-                if (in2 != -1) {
-                    System.out.print((char) in2);
-                }
-            } while (in2 != -1);
-            buff.close();
-        } catch (IOException e) {
-            System.out.println("Error " + e.toString());
-        }
-
         tabla.setModel(model);
     }//GEN-LAST:event_btnMosTablaActionPerformed
 
@@ -641,16 +627,24 @@ public class JFrameAnalizador extends javax.swing.JFrame {
         DefaultTableModel model = new DefaultTableModel();
         model.setColumnIdentifiers(new Object[]{"Clase", "Valor", "Nombre"});
 
-//        for (i = 0; i <= k; i++) {
-//            model.addRow(new Object[]{pos[i], token[i], valor[i]});
-//            System.out.println(pos[i] + "\t\t" + token[i] + "\t\t" + valor[i]);
-//        }
-        Iterator<Token> tokenSigui = _tabla_tokens.iterator();
-        while (tokenSigui.hasNext()) {
-            Token token = tokenSigui.next();
-            model.addRow(new Object[]{token.getClase(), token.getValor(), token.getNombre()});
-        }
+        try {
+            FileWriter file = new FileWriter("tokens.txt", false);
+            BufferedWriter buff = new BufferedWriter(file);
 
+            Iterator<Token> tokenSigui = _tabla_tokens.iterator();
+            while (tokenSigui.hasNext()) {
+                Token token = tokenSigui.next();
+                model.addRow(new Object[]{token.getClase(), token.getValor(), token.getNombre()});
+                buff.write(token.getClase() + "\t\t" + token.getValor() + "\t\t" + token.getNombre() + "\n");
+            }
+            buff.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(JFrameAnalizador.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Error " + ex.toString());
+        } catch (IOException ex) {
+            Logger.getLogger(JFrameAnalizador.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Error " + ex.toString());
+        }
         tabla.setModel(model);
     }//GEN-LAST:event_btnMosTokensActionPerformed
 
@@ -705,6 +699,8 @@ public class JFrameAnalizador extends javax.swing.JFrame {
     private javax.swing.JButton btnMosTokens;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTable tabla;
+    private javax.swing.JEditorPane txtError;
     // End of variables declaration//GEN-END:variables
 }
