@@ -17,15 +17,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import static java.lang.System.in;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.table.DefaultTableModel;
-import sun.misc.IOUtils;
 
 /**
  *
@@ -41,12 +38,11 @@ public class JFrameAnalizador extends javax.swing.JFrame {
     String[] token = new String[100];
     String[] auxToken = new String[20];
     String[] reservadas = {"", "ENTONCES", "ESCRIBIR", "FIN", "HACER", "INICIO", "LEER", "MIENTRAS", "SI", "SINO"};
-    String cabecera1[] = {"No.", " Token ", " Tipo"};
-    String palabra = "", reservado = "", ruta = "", error = "";
+    String palabra = "", reservado = "", ruta = "", errorString = "",tope_pila = "";
     String[] valor = new String[500];
     int[] id = new int[100];
     int[] pos = new int[500];
-    int i, j, k, n, m = 0, size = 0, linea = 0, orden = 1, estado = 0, opcion;
+    int i, j, k, n, m = 0, size = 0, linea = 0, orden = 1, estado = 0, opcion, error;
 
     /**
      * Creates new form JFrameAnalizador
@@ -77,6 +73,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
         tabla = new javax.swing.JTable();
         jScrollPane4 = new javax.swing.JScrollPane();
         txtError = new javax.swing.JEditorPane();
+        btnAnSemantico = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -219,6 +216,13 @@ public class JFrameAnalizador extends javax.swing.JFrame {
 
         jScrollPane4.setViewportView(txtError);
 
+        btnAnSemantico.setText("Analizador Semantico");
+        btnAnSemantico.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAnSemanticoActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -233,7 +237,9 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnMosTabla)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnMosTokens))
+                        .addComponent(btnMosTokens)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnAnSemantico))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 420, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
@@ -249,7 +255,8 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                     .addComponent(btnAgregarTexto)
                     .addComponent(btnAnLéxico)
                     .addComponent(btnMosTabla)
-                    .addComponent(btnMosTokens))
+                    .addComponent(btnMosTokens)
+                    .addComponent(btnAnSemantico))
                 .addGap(33, 33, 33)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE)
@@ -305,7 +312,8 @@ public class JFrameAnalizador extends javax.swing.JFrame {
         size = 0;
         orden = 1;
         estado = 0;
-        error = "";
+        errorString = "";
+        txtError.setText("");
 
         try {
 
@@ -452,8 +460,8 @@ public class JFrameAnalizador extends javax.swing.JFrame {
                                 m = 0;
                                 break;
                             case 8:
-                                error += "Error en la línea " + linea + " con la palabra " + palabra + ", " + "\n";
-                                txtError.setText(error);
+                                errorString += "Error en la línea " + linea + " con la palabra " + palabra + ", " + "\n";
+                                txtError.setText(errorString);
                                 palabra = "";
                                 size = 0;
                                 estado = 0;
@@ -648,6 +656,162 @@ public class JFrameAnalizador extends javax.swing.JFrame {
         tabla.setModel(model);
     }//GEN-LAST:event_btnMosTokensActionPerformed
 
+    private void btnAnSemanticoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnSemanticoActionPerformed
+        error = 0;
+                    if (k == 0) {
+                        System.out.println("Error, primero debe de ejecutar el analizador léxico");
+                    } else {
+                        for (i = 0; i < k; i++) {
+                            tope_pila = stack.tope();
+                            if (tope_pila.equals("$")) {
+                                if (token[i].equals("INICIO")) {
+                                    stack.push("f");
+                                    stack.push("E");
+                                } else {
+                                    System.out.println("Error semantico con el elemento " + token[i]);
+                                    error = 1;
+                                }
+
+                            } else if (tope_pila.equals("E")) {
+                                if (id[i] == 2) {
+                                    stack.pop();
+                                    stack.push("T");
+                                    stack.push(":");
+                                } else if (token[i].equals("LEE") || token[i].equals("IMPRIME")) {
+                                    stack.pop();
+                                    stack.push("T");
+                                } else if (token[i].equals("SI")) {
+                                    stack.pop();
+                                    stack.push("E2");
+                                    stack.push("E");
+                                    stack.push("e");
+                                    stack.push("X");
+                                } else if (token[i].equals("MIENTRAS")) {
+                                    stack.pop();
+                                    stack.push("f");
+                                    stack.push("E");
+                                    stack.push("h");
+                                    stack.push("X");
+                                } else {
+                                    System.out.println("Error sematico con el elemento " + token[i]);
+                                    error = 1;
+                                }
+                            } else if (tope_pila.equals("E2")) {
+                                if (token[i].equals("FIN")) {
+                                    stack.pop();
+                                } else if (token[i].equals("LEE") || token[i].equals("SI") || token[i].equals("MIENTRAS") || token[i].equals("IMPRIME")) {
+                                    stack.push("E");
+                                    i--;
+                                } else if (token[i].equals("HACER")) {
+                                    stack.pop();
+                                    stack.push("f");
+                                    stack.push("f");
+                                    stack.push("E");
+                                } else {
+                                    System.out.println("Error semantico con el elemento " + token[i]);
+                                    error = 1;
+                                }
+                            } else if (tope_pila.equals("T")) {
+                                if (id[i] == 2 || id[i] == 3) {
+                                    stack.pop();
+                                } else {
+                                    System.out.println("Error semantico con el elemento " + token[i]);
+                                    error = 1;
+                                }
+                            } else if (tope_pila.equals("X")) {
+                                if (id[i] == 2 || id[i] == 3) {
+                                    stack.pop();
+                                    stack.push("S");
+                                    stack.push("R");
+                                    stack.push("H");
+                                } else if (id[i] == 7) {
+                                    stack.pop();
+                                    stack.push("S");
+                                    stack.push("R");
+                                    stack.push("H");
+                                    stack.push(")");
+                                    stack.push("H");
+                                    stack.push("S");
+                                } else {
+                                    System.out.println("Error semantico con el elemento " + token[i]);
+                                    error = 1;
+                                }
+                            } else if (tope_pila.equals("H")) {
+                                if (id[i] == 4) {
+                                    stack.pop();
+                                    stack.push("T");
+                                } else {
+                                    System.out.println("Error semantico con el elemento " + token[i]);
+                                    error = 1;
+                                }
+                            } else if (tope_pila.equals("R")) {
+                                if (id[i] == 5) {
+                                    stack.pop();
+                                } else {
+                                    System.out.println("Error semantico con el elemento " + token[i]);
+                                    error = 1;
+                                }
+                            } else if (tope_pila.equals("S")) {
+                                if (id[i] == 2 || id[i] == 3) {
+                                    stack.pop();
+                                } else if (token[i].equals("LEE")) {
+                                    stack.pop();
+                                    stack.push("T");
+                                } else {
+                                    System.out.println("Error semantico con el elemento " + token[i]);
+                                    error = 1;
+                                }
+                            } else if (tope_pila.equals(":")) {
+                                if (id[i] == 6) {
+                                    stack.pop();
+                                } else {
+                                    System.out.println("Error semantico con el elemento " + token[i]);
+                                    error = 1;
+                                }
+                            } else if (tope_pila.equals("f")) {
+                                if (token[i].equals("FIN")) {
+                                    stack.pop();
+                                } else if (id[i] == 2 || token[i].equals("LEE") || token[i].equals("SI") || token[i].equals("MIENTRAS") || token[i].equals("IMPRIME")) {
+                                    stack.push("E");
+                                    i--;
+                                } else {
+                                    System.out.println("Error semantico con el elemento " + token[i]);
+                                    error = 1;
+                                }
+                            } else if (tope_pila.equals(")")) {
+                                if (id[i] == 8) {
+                                    stack.pop();
+                                } else {
+                                    System.out.println("Error semantico con el elemento " + token[i]);
+                                    error = 1;
+                                }
+                            } else if (tope_pila.equals("e")) {
+                                if (token[i].equals("ENTONCES")) {
+                                    stack.pop();
+                                } else {
+                                    System.out.println("Error semantico con el elemento " + token[i]);
+                                    error = 1;
+                                }
+                            } else if (tope_pila.equals("h")) {
+                                if (token[i].equals("HACER")) {
+                                    stack.pop();
+                                } else {
+                                    System.out.println("Error semantico con el elemento " + token[i]);
+                                    error = 1;
+                                }
+                            }
+                        }
+                    }
+                    tope_pila = stack.tope();
+                    if (tope_pila.equals("$") && error == 0) {
+                        System.out.println("\n*****Su codigo no contiene errores semanticos*****");
+                    }
+
+
+            
+
+    }//GEN-LAST:event_btnAnSemanticoActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -695,6 +859,7 @@ public class JFrameAnalizador extends javax.swing.JFrame {
     private javax.swing.JEditorPane EPane;
     private javax.swing.JButton btnAgregarTexto;
     private javax.swing.JButton btnAnLéxico;
+    private javax.swing.JButton btnAnSemantico;
     private javax.swing.JButton btnMosTabla;
     private javax.swing.JButton btnMosTokens;
     private javax.swing.JScrollPane jScrollPane1;

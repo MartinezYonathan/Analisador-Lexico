@@ -1,5 +1,5 @@
 {Porgrama1}
-A INICIO
+INICIO
 	A := 5	B := 10
 	ESCRIBIR A
 	ESCRIBIR B
