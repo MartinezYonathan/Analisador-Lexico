@@ -37,8 +37,8 @@ public class JFrameAnalizador extends javax.swing.JFrame {
     Tabla_Simbolos _Simbolos;
     String[] token = new String[100];
     String[] auxToken = new String[20];
-    String[] reservadas = {"", "ENTONCES", "ESCRIBIR", "FIN", "HACER", "INICIO", "LEER", "MIENTRAS", "SI", "SINO"};
-    String palabra = "", reservado = "", ruta = "", errorString = "",tope_pila = "";
+    String[] reservadas = {"", "ENTONCES", "ESCRIBIR", "FIN", "HACER", "INICIO", "LEE", "MIENTRAS", "SI", "SINO"};
+    String palabra = "", reservado = "", ruta = "", errorString = "", tope_pila = "";
     String[] valor = new String[500];
     int[] id = new int[100];
     int[] pos = new int[500];
@@ -657,160 +657,482 @@ public class JFrameAnalizador extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMosTokensActionPerformed
 
     private void btnAnSemanticoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnSemanticoActionPerformed
-        error = 0;
-                    if (k == 0) {
-                        System.out.println("Error, primero debe de ejecutar el analizador léxico");
-                    } else {
-                        for (i = 0; i < k; i++) {
-                            tope_pila = stack.tope();
-                            if (tope_pila.equals("$")) {
-                                if (token[i].equals("INICIO")) {
-                                    stack.push("f");
-                                    stack.push("E");
-                                } else {
-                                    System.out.println("Error semantico con el elemento " + token[i]);
-                                    error = 1;
-                                }
+        stack.limpia_pila();
+        pasrserP();
+    }//GEN-LAST:event_btnAnSemanticoActionPerformed
 
-                            } else if (tope_pila.equals("E")) {
-                                if (id[i] == 2) {
-                                    stack.pop();
-                                    stack.push("T");
-                                    stack.push(":");
-                                } else if (token[i].equals("LEE") || token[i].equals("IMPRIME")) {
-                                    stack.pop();
-                                    stack.push("T");
-                                } else if (token[i].equals("SI")) {
-                                    stack.pop();
-                                    stack.push("E2");
-                                    stack.push("E");
-                                    stack.push("e");
-                                    stack.push("X");
-                                } else if (token[i].equals("MIENTRAS")) {
-                                    stack.pop();
-                                    stack.push("f");
-                                    stack.push("E");
-                                    stack.push("h");
-                                    stack.push("X");
-                                } else {
-                                    System.out.println("Error sematico con el elemento " + token[i]);
-                                    error = 1;
-                                }
-                            } else if (tope_pila.equals("E2")) {
-                                if (token[i].equals("FIN")) {
-                                    stack.pop();
-                                } else if (token[i].equals("LEE") || token[i].equals("SI") || token[i].equals("MIENTRAS") || token[i].equals("IMPRIME")) {
-                                    stack.push("E");
-                                    i--;
-                                } else if (token[i].equals("HACER")) {
-                                    stack.pop();
-                                    stack.push("f");
-                                    stack.push("f");
-                                    stack.push("E");
-                                } else {
-                                    System.out.println("Error semantico con el elemento " + token[i]);
-                                    error = 1;
-                                }
-                            } else if (tope_pila.equals("T")) {
-                                if (id[i] == 2 || id[i] == 3) {
-                                    stack.pop();
-                                } else {
-                                    System.out.println("Error semantico con el elemento " + token[i]);
-                                    error = 1;
-                                }
-                            } else if (tope_pila.equals("X")) {
-                                if (id[i] == 2 || id[i] == 3) {
-                                    stack.pop();
-                                    stack.push("S");
-                                    stack.push("R");
-                                    stack.push("H");
-                                } else if (id[i] == 7) {
-                                    stack.pop();
-                                    stack.push("S");
-                                    stack.push("R");
-                                    stack.push("H");
-                                    stack.push(")");
-                                    stack.push("H");
-                                    stack.push("S");
-                                } else {
-                                    System.out.println("Error semantico con el elemento " + token[i]);
-                                    error = 1;
-                                }
-                            } else if (tope_pila.equals("H")) {
-                                if (id[i] == 4) {
-                                    stack.pop();
-                                    stack.push("T");
-                                } else {
-                                    System.out.println("Error semantico con el elemento " + token[i]);
-                                    error = 1;
-                                }
-                            } else if (tope_pila.equals("R")) {
-                                if (id[i] == 5) {
-                                    stack.pop();
-                                } else {
-                                    System.out.println("Error semantico con el elemento " + token[i]);
-                                    error = 1;
-                                }
-                            } else if (tope_pila.equals("S")) {
-                                if (id[i] == 2 || id[i] == 3) {
-                                    stack.pop();
-                                } else if (token[i].equals("LEE")) {
-                                    stack.pop();
-                                    stack.push("T");
-                                } else {
-                                    System.out.println("Error semantico con el elemento " + token[i]);
-                                    error = 1;
-                                }
-                            } else if (tope_pila.equals(":")) {
-                                if (id[i] == 6) {
-                                    stack.pop();
-                                } else {
-                                    System.out.println("Error semantico con el elemento " + token[i]);
-                                    error = 1;
-                                }
-                            } else if (tope_pila.equals("f")) {
-                                if (token[i].equals("FIN")) {
-                                    stack.pop();
-                                } else if (id[i] == 2 || token[i].equals("LEE") || token[i].equals("SI") || token[i].equals("MIENTRAS") || token[i].equals("IMPRIME")) {
-                                    stack.push("E");
-                                    i--;
-                                } else {
-                                    System.out.println("Error semantico con el elemento " + token[i]);
-                                    error = 1;
-                                }
-                            } else if (tope_pila.equals(")")) {
-                                if (id[i] == 8) {
-                                    stack.pop();
-                                } else {
-                                    System.out.println("Error semantico con el elemento " + token[i]);
-                                    error = 1;
-                                }
-                            } else if (tope_pila.equals("e")) {
-                                if (token[i].equals("ENTONCES")) {
-                                    stack.pop();
-                                } else {
-                                    System.out.println("Error semantico con el elemento " + token[i]);
-                                    error = 1;
-                                }
-                            } else if (tope_pila.equals("h")) {
-                                if (token[i].equals("HACER")) {
-                                    stack.pop();
-                                } else {
-                                    System.out.println("Error semantico con el elemento " + token[i]);
-                                    error = 1;
-                                }
-                            }
+    public void pasrserP() {
+        error = 0;
+        if (_tabla_tokens.size() == 0) {
+            System.out.println("Error, primero debe de ejecutar el analizador léxico");
+            error=1;
+        } else {
+            for (i = 0; i < _tabla_tokens.size(); i++) {
+
+                Token token = _tabla_tokens.get(i);
+                tope_pila = stack.tope();
+                if (tope_pila.equals("$")) {
+                    if (token.getNombre().equals("INICIO")) {
+                        stack.push("f");
+                        stack.push("E");
+                    } else {
+                        System.out.println("Error semantico con el elemento  INICI" + token.getNombre());
+                        error = 1;
+                    }
+
+                } else if (tope_pila.equals("E")) {
+                    if (token.getClase() == 3) {
+                        stack.pop();
+                        stack.push("T");
+                        stack.push(":");
+                    } else if (token.getNombre().equals("LEE") || token.getNombre().equals("IMPRIME")) {
+                        stack.pop();
+                        stack.push("T");
+                    } else if (token.getNombre().equals("SI")) {
+                        stack.pop();
+                        stack.push("E2");
+                        stack.push("E");
+                        stack.push("e");
+                        stack.push("X");
+                    } else if (token.getNombre().equals("MIENTRAS")) {
+                        stack.pop();
+                        stack.push("f");
+                        stack.push("E");
+                        stack.push("h");
+                        stack.push("X");
+                    } else {
+                        System.out.println("Error sematico con el elemento SEGUNDO______________________________ " + token.getNombre());
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("E2")) {
+                    if (token.getNombre().equals("FIN")) {
+                        stack.pop();
+                    } else if (token.getNombre().equals("LEE") || token.getNombre().equals("SI") || token.getNombre().equals("MIENTRAS") || token.getNombre().equals("IMPRIME")) {
+                        stack.push("E");
+                        i--;
+                    } else if (token.getNombre().equals("HACER")) {
+                        stack.pop();
+                        stack.push("f");
+                        stack.push("f");
+                        stack.push("E");
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token.getNombre());
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("T")) {
+                    if (token.getClase() == 3 || token.getClase() == 1) {
+                        stack.pop();
+                    } else if (token.getClase() == 4) {
+                        stack.pop();
+                        stack.push("E");
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token.getNombre());
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("X")) {
+                    if (token.getClase() == 3 || token.getClase() == 1) {
+                        stack.pop();
+                        stack.push("S");
+                        stack.push("R");
+                        stack.push("H");
+                    } else if (token.getClase() == 4) {
+                        stack.pop();
+                        stack.push("S");
+                        stack.push("R");
+                        stack.push("H");
+                        stack.push(")");
+                        stack.push("H");
+                        stack.push("S");
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token.getNombre());
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("H")) {
+                    if (token.getClase() == 5) {
+                        stack.pop();
+                        stack.push("T");
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token.getNombre());
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("R")) {
+                    if (token.getClase() == 6) {
+                        stack.pop();
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token.getNombre());
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("S")) {
+                    if (token.getClase() == 3 || token.getClase() == 1) {
+                        stack.pop();
+                    } else if (token.getNombre().equals("LEE")) {
+                        stack.pop();
+                        stack.push("T");
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token.getNombre());
+                        error = 1;
+                    }
+                } else if (tope_pila.equals(":")) {
+                    if (token.getClase() == 7) {
+                        stack.pop();
+                    } else if (token.getClase() == 4) {
+                        stack.pop();
+                        stack.push("E");
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token.getNombre());
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("f")) {
+                    if (token.getNombre().equals("FIN")) {
+                        stack.pop();
+                    } else if (token.getClase() == 3 || token.getNombre().equals("LEE") || token.getNombre().equals("SI") || token.getNombre().equals("MIENTRAS") || token.getNombre().equals("IMPRIME")) {
+                        stack.push("E");
+                        i--;
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token.getNombre());
+                        error = 1;
+                    }
+                } else if (tope_pila.equals(")")) {
+                    if (token.getClase() == 4) {
+                        stack.pop();
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token.getNombre());
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("e")) {
+                    if (token.getNombre().equals("ENTONCES")) {
+                        stack.pop();
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token.getNombre());
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("h")) {
+                    if (token.getNombre().equals("HACER")) {
+                        stack.pop();
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token.getNombre());
+                        error = 1;
+                    }
+                }
+            }
+        }
+
+        tope_pila = stack.tope();
+        if (tope_pila.equals("$") && error == 0) {
+            System.out.println("\n*****Su codigo no contiene errores semanticos*****");
+        }
+
+    }
+
+    public void pasrser() {
+        error = 0;
+        if (k == 0) {
+            System.out.println("Error, primero debe de ejecutar el analizador léxico");
+        } else {
+            for (i = 0; i < k; i++) {
+                Iterator<Token> tokenSigui = _tabla_tokens.iterator();
+                while (tokenSigui.hasNext()) {
+                    Token token = tokenSigui.next();
+                    tope_pila = stack.tope();
+                    if (tope_pila.equals("$")) {
+                        if (token.getNombre().equals("INICIO")) {
+                            stack.push("f");
+                            stack.push("E");
+                        } else {
+                            System.out.println("Error semantico con el elemento  INICI" + token.getNombre());
+                            error = 1;
+                        }
+
+                    } else if (tope_pila.equals("E")) {
+                        if (token.getClase() == 3) {
+                            stack.pop();
+                            stack.push("T");
+                            stack.push(":");
+                        } else if (token.getNombre().equals("LEE") || token.getNombre().equals("IMPRIME")) {
+                            stack.pop();
+                            stack.push("T");
+                        } else if (token.getNombre().equals("SI")) {
+                            stack.pop();
+                            stack.push("E2");
+                            stack.push("E");
+                            stack.push("e");
+                            stack.push("X");
+                        } else if (token.getNombre().equals("MIENTRAS")) {
+                            stack.pop();
+                            stack.push("f");
+                            stack.push("E");
+                            stack.push("h");
+                            stack.push("X");
+                        } else {
+                            System.out.println("Error sematico con el elemento SEGUNDO______________________________ " + token.getNombre());
+                            error = 1;
+                        }
+                    } else if (tope_pila.equals("E2")) {
+                        if (token.getNombre().equals("FIN")) {
+                            stack.pop();
+                        } else if (token.getNombre().equals("LEE") || token.getNombre().equals("SI") || token.getNombre().equals("MIENTRAS") || token.getNombre().equals("IMPRIME")) {
+                            stack.push("E");
+                            i--;
+                        } else if (token.getNombre().equals("HACER")) {
+                            stack.pop();
+                            stack.push("f");
+                            stack.push("f");
+                            stack.push("E");
+                        } else {
+                            System.out.println("Error semantico con el elemento " + token.getNombre());
+                            error = 1;
+                        }
+                    } else if (tope_pila.equals("T")) {
+                        if (token.getClase() == 3 || token.getClase() == 1) {
+                            stack.pop();
+                        } else {
+                            System.out.println("Error semantico con el elemento " + token.getNombre());
+                            error = 1;
+                        }
+                    } else if (tope_pila.equals("X")) {
+                        if (token.getClase() == 3 || token.getClase() == 1) {
+                            stack.pop();
+                            stack.push("S");
+                            stack.push("R");
+                            stack.push("H");
+                        } else if (token.getClase() == 4) {
+                            stack.pop();
+                            stack.push("S");
+                            stack.push("R");
+                            stack.push("H");
+                            stack.push(")");
+                            stack.push("H");
+                            stack.push("S");
+                        } else {
+                            System.out.println("Error semantico con el elemento " + token.getNombre());
+                            error = 1;
+                        }
+                    } else if (tope_pila.equals("H")) {
+                        if (token.getClase() == 5) {
+                            stack.pop();
+                            stack.push("T");
+                        } else {
+                            System.out.println("Error semantico con el elemento " + token.getNombre());
+                            error = 1;
+                        }
+                    } else if (tope_pila.equals("R")) {
+                        if (token.getClase() == 6) {
+                            stack.pop();
+                        } else {
+                            System.out.println("Error semantico con el elemento " + token.getNombre());
+                            error = 1;
+                        }
+                    } else if (tope_pila.equals("S")) {
+                        if (token.getClase() == 3 || token.getClase() == 1) {
+                            stack.pop();
+                        } else if (token.getNombre().equals("LEE")) {
+                            stack.pop();
+                            stack.push("T");
+                        } else {
+                            System.out.println("Error semantico con el elemento " + token.getNombre());
+                            error = 1;
+                        }
+                    } else if (tope_pila.equals(":")) {
+                        if (token.getClase() == 7) {
+                            stack.pop();
+                        } else {
+                            System.out.println("Error semantico con el elemento " + token.getNombre());
+                            error = 1;
+                        }
+                    } else if (tope_pila.equals("f")) {
+                        if (token.getNombre().equals("FIN")) {
+                            stack.pop();
+                        } else if (token.getClase() == 3 || token.getNombre().equals("LEE") || token.getNombre().equals("SI") || token.getNombre().equals("MIENTRAS") || token.getNombre().equals("IMPRIME")) {
+                            stack.push("E");
+                            i--;
+                        } else {
+                            System.out.println("Error semantico con el elemento " + token.getNombre());
+                            error = 1;
+                        }
+                    } else if (tope_pila.equals(")")) {
+                        if (token.getClase() == 4) {
+                            stack.pop();
+                        } else {
+                            System.out.println("Error semantico con el elemento " + token.getNombre());
+                            error = 1;
+                        }
+                    } else if (tope_pila.equals("e")) {
+                        if (token.getNombre().equals("ENTONCES")) {
+                            stack.pop();
+                        } else {
+                            System.out.println("Error semantico con el elemento " + token.getNombre());
+                            error = 1;
+                        }
+                    } else if (tope_pila.equals("h")) {
+                        if (token.getNombre().equals("HACER")) {
+                            stack.pop();
+                        } else {
+                            System.out.println("Error semantico con el elemento " + token.getNombre());
+                            error = 1;
                         }
                     }
-                    tope_pila = stack.tope();
-                    if (tope_pila.equals("$") && error == 0) {
-                        System.out.println("\n*****Su codigo no contiene errores semanticos*****");
+                }
+            }
+        }
+        tope_pila = stack.tope();
+        if (tope_pila.equals("$") && error == 0) {
+            System.out.println("\n*****Su codigo no contiene errores semanticos*****");
+        }
+
+    }
+
+    public void pasrser1() {
+        error = 0;
+        if (k == 0) {
+            System.out.println("Error, primero debe de ejecutar el analizador léxico");
+        } else {
+            for (i = 0; i < k; i++) {
+                tope_pila = stack.tope();
+                if (tope_pila.equals("$")) {
+                    if (token[i].equals("INICIO")) {
+                        stack.push("f");
+                        stack.push("E");
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token[i]);
+                        error = 1;
                     }
 
+                } else if (tope_pila.equals("E")) {
+                    if (id[i] == 2) {
+                        stack.pop();
+                        stack.push("T");
+                        stack.push(":");
+                    } else if (token[i].equals("LEE") || token[i].equals("IMPRIME")) {
+                        stack.pop();
+                        stack.push("T");
+                    } else if (token[i].equals("SI")) {
+                        stack.pop();
+                        stack.push("E2");
+                        stack.push("E");
+                        stack.push("e");
+                        stack.push("X");
+                    } else if (token[i].equals("MIENTRAS")) {
+                        stack.pop();
+                        stack.push("f");
+                        stack.push("E");
+                        stack.push("h");
+                        stack.push("X");
+                    } else {
+                        System.out.println("Error sematico con el elemento " + token[i]);
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("E2")) {
+                    if (token[i].equals("FIN")) {
+                        stack.pop();
+                    } else if (token[i].equals("LEE") || token[i].equals("SI") || token[i].equals("MIENTRAS") || token[i].equals("IMPRIME")) {
+                        stack.push("E");
+                        i--;
+                    } else if (token[i].equals("HACER")) {
+                        stack.pop();
+                        stack.push("f");
+                        stack.push("f");
+                        stack.push("E");
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token[i]);
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("T")) {
+                    if (id[i] == 2 || id[i] == 3) {
+                        stack.pop();
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token[i]);
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("X")) {
+                    if (id[i] == 2 || id[i] == 3) {
+                        stack.pop();
+                        stack.push("S");
+                        stack.push("R");
+                        stack.push("H");
+                    } else if (id[i] == 7) {
+                        stack.pop();
+                        stack.push("S");
+                        stack.push("R");
+                        stack.push("H");
+                        stack.push(")");
+                        stack.push("H");
+                        stack.push("S");
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token[i]);
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("H")) {
+                    if (id[i] == 4) {
+                        stack.pop();
+                        stack.push("T");
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token[i]);
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("R")) {
+                    if (id[i] == 5) {
+                        stack.pop();
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token[i]);
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("S")) {
+                    if (id[i] == 2 || id[i] == 3) {
+                        stack.pop();
+                    } else if (token[i].equals("LEE")) {
+                        stack.pop();
+                        stack.push("T");
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token[i]);
+                        error = 1;
+                    }
+                } else if (tope_pila.equals(":")) {
+                    if (id[i] == 6) {
+                        stack.pop();
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token[i]);
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("f")) {
+                    if (token[i].equals("FIN")) {
+                        stack.pop();
+                    } else if (id[i] == 2 || token[i].equals("LEE") || token[i].equals("SI") || token[i].equals("MIENTRAS") || token[i].equals("IMPRIME")) {
+                        stack.push("E");
+                        i--;
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token[i]);
+                        error = 1;
+                    }
+                } else if (tope_pila.equals(")")) {
+                    if (id[i] == 8) {
+                        stack.pop();
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token[i]);
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("e")) {
+                    if (token[i].equals("ENTONCES")) {
+                        stack.pop();
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token[i]);
+                        error = 1;
+                    }
+                } else if (tope_pila.equals("h")) {
+                    if (token[i].equals("HACER")) {
+                        stack.pop();
+                    } else {
+                        System.out.println("Error semantico con el elemento " + token[i]);
+                        error = 1;
+                    }
+                }
+            }
+        }
+        tope_pila = stack.tope();
+        if (tope_pila.equals("$") && error == 0) {
+            System.out.println("\n*****Su codigo no contiene errores semanticos*****");
+        }
 
-            
-
-    }//GEN-LAST:event_btnAnSemanticoActionPerformed
+    }
 
     /**
      * @param args the command line arguments

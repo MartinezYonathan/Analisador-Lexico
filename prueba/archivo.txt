@@ -1,7 +1,6 @@
 INICIO	{Esto es un comentario}
 	A := 5
 	B := 10
-EstoEsUnError 
 	LEER C
 	D := 8
 	SI ( A + 2 ) + B = 9
@@ -9,7 +8,7 @@ EstoEsUnError
 	HACER
 	A := D
 	B := A
-	_5	FIN {Esto es un comentario}
+		FIN {Esto es un comentario}
 	FIN
 	SI C + 2 >= B ENTONCES
 	FIN
